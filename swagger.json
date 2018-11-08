@@ -12,9 +12,82 @@
     "/dmz/api/espr/init/" : {
       "post" : {
         "description" : "Auto generated using Swagger Inspector",
+        "requestBody" : {
+          "content" : {
+            "application/xml" : {
+              "schema" : {
+                "type" : "string"
+              },
+              "examples" : { }
+            }
+          }
+        },
         "responses" : {
-          "415" : {
-            "description" : "Auto generated using Swagger Inspector"
+          "200" : {
+            "description" : "Auto generated using Swagger Inspector",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "ReferenceNumber" : {
+                      "type" : "string"
+                    },
+                    "PackageSignature" : {
+                      "type" : "object",
+                      "properties" : {
+                        "PackageName" : {
+                          "type" : "string"
+                        },
+                        "FileSignatureList" : {
+                          "type" : "object",
+                          "properties" : {
+                            "FileSignature" : {
+                              "type" : "object",
+                              "properties" : {
+                                "FileName" : {
+                                  "type" : "string"
+                                },
+                                "HeaderEntry" : {
+                                  "type" : "array",
+                                  "properties" : {
+                                    "items" : {
+                                      "type" : "object",
+                                      "properties" : {
+                                        "Value" : {
+                                          "type" : "string"
+                                        },
+                                        "Key" : {
+                                          "type" : "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "Method" : {
+                                  "type" : "string"
+                                },
+                                "URL" : {
+                                  "type" : "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Timestamp" : {
+                      "type" : "number"
+                    }
+                  }
+                },
+                "examples" : {
+                  "0" : {
+                    "value" : "{\"ReferenceNumber\":\"41880061ed174a42b1ad9a45c8d31ffe\",\"Timestamp\":1541668602934,\"PackageSignature\":{\"PackageName\":\"eSPR_package.zip\",\"FileSignatureList\":{\"FileSignature\":{\"FileName\":\"eSPR_package.zip.aes\",\"URL\":\"https://e-sprawozdania-tst.mf.gov.pl:443/dmz/api/espr/upload/41880061ed174a42b1ad9a45c8d31ffe/163590a9-ddc1-4c26-bf28-cb42e8e76885\",\"Method\":\"PUT\",\"HeaderEntry\":[{\"Key\":\"rn\",\"Value\":\"41880061ed174a42b1ad9a45c8d31ffe\"},{\"Key\":\"fi\",\"Value\":\"163590a9-ddc1-4c26-bf28-cb42e8e76885\"}]}}}}"
+                  }
+                }
+              }
+            }
           }
         }
       }
