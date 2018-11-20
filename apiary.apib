@@ -1,0 +1,229 @@
+FORMAT: 1A
+HOST: https://e-sprawozdania-tst.mf.gov.pl
+
+# E-Sprawozdania
+# Opis
+Niniejszy dokument opisuje usługę e-Sprawozdnia Finansowe, która umożliwia przekazanie w formie
+elektronicznej sprawozdań przez podmioty zobligowane do ich składania. API systemu e-Sprawozdania zostało
+zrealizowane według wzorca REST.
+
+# Adresy
+Komunikacja polega na wysłaniu żądania HTTP pod adres:
+<p>Środowisko produkcyjne: <a href="https://e-sprawozdania.mf.gov.pl/dmz/api/espr/">https://e-sprawozdania.mf.gov.pl/dmz/api/espr/</a></p>
+<p>Środowisko testowe: <a href="https://e-sprawozdania-tst.mf.gov.pl/dmz/api/espr/">https://e-sprawozdania-tst.mf.gov.pl/dmz/api/espr/</a></p>
+
+# Specyfikacja
+W ramach pełnej realizacji procesu składania e-sprawozdania metody dostarczane przez usługę powinny
+być wywoływane w określonej kolejności. Zachowanie sekwencji wywołani jest warunkiem koniecznym
+dla prawidłowego obsłużenia proces składani e-Sprawozdań Finansowych.
+W sytuacji gdy rozpoczynamy składanie sprawozdania, należy w pierwszej kolejności przygotować pakiet
+wysyłkowy w skład którego wchodzi:
+<p>• Sprawozdanie w formacie XML zgodnym z opublikowanymi schematami XSD</p>
+<p>• Metrykę dokumentu zgodna ze schematem (sekcja załącznik: fileMetrics.xsd)</p>
+<p>• Paczkę ZIP powyższych plików (w oparciu algorytm deFlate)</p>
+<p>• Klucz symetryczny AES256 zgodny ze specyfikacją:</p>
+<p>&emsp;✓ Długość klucza Key Size 256 bits / 32 bytes</p>
+<p>&emsp;✓ Tryb szyfru Cipher Mode CBC (Chain Block Chaining)</p>
+<p>&emsp;✓ Dopełnienie Padding PKCS#7</p>
+<p>&emsp;✓ Rozmiar bloku Block Size 16 bytes</p>
+<p>&emsp;✓ Wektor inicjujący Initialization Vector 16 bytes</p>
+<p>• Zaszyfrowanie przygotwowanego ZIP-a powyższym kluczem.</p>
+<p>• Zaszyfrowanie klucza algorytmem RSA, zgodnym ze specyfikacją publicznym certyfikatem MF.</p>
+<p>&emsp;✓ Długość klucza Key Size 256 bits / 32 bytes</p>
+<p>&emsp;✓ Tryb szyfru Cipher Mode ECB (Electronic Codebook)</p>
+<p>&emsp;✓ Dopełnienie Padding PKCS#1</p>
+<p>&emsp;✓ Rozmiar bloku Block Size 256 bytes</p>
+<p>Przygotowanie dokumentu XML zgodnego ze schematem (sekcja załącznik: initRequest.xsd)</p>
+<p>Podpisanie powyższego dokumentu XML Profilem Zaufanym lub podpisem kwalifikowanym polskim albo
+europejskim zgodnie z algorytmem XAdES Basic Electronic Signature w postaci pliku XML zgodnego ze
+schematem http://www.w3.org/2000/09/xmldsig, w skrócie XAdES-BES w wersji Enveloped (podpis jako
+dodatkowy element ds:Signature w oryginalnym XML).</p>
+<p>Przy podpisywaniu można dokonać transformacji obiektu podpisywanego zgodnie z kodowaniem
+http://www.w3.org/2000/09/xmldsig#base64. Funkcją skrótu wykorzystywaną w podpisie powinna być RSASHA256 lub RSA-SHA1.</p>
+<p>Następnie należy wywołać metodę init wykorzystując wcześniej przygotowany pakiet wysyłkowy. Aby przekazać
+załączniki należy wywołać metodę upload. Potwierdzenie zakończenia przekazywania należy wykonać przez
+wywołanie metody finish.</p>
+<p>Po przekazaniu sprawozdania możliwe jest wywołanie metody status umożliwiającej sprawdzenie statusu
+dla złożonego sprawozdania i opcjonalnie pobranie UPO.</p>
+<p>Odpowiedź na każde żądanie wysłane do API jest w formacie JSON.</p>
+
+## Pierwszy etap [/dmz/api/espr/init]
+Metoda rozpoczynająca przekazywanie sprawozdania. Wywołanie tej metody jest wymagane. W metodzie
+tej należy przekazać podpisany plik xml zawierający wszystkie wymagane dane sprawozdania oraz listę referencji
+do wszystkich załączników które będą dołączone do sprawozdania
+### INIT [POST] 
+
++ Request (application/xml)
+    
+        <?xml version="1.0" encoding="UTF-8" standalone="no"?><svcInitRequest:InitRequest xmlns:svcInitRequest="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001"><svcInitRequest:DocumentType>eSPR</svcInitRequest:DocumentType><svcInitRequest:Encryption><svcTypes:EncryptionKey algorithm="RSA" encoding="Base64" mode="ECB" padding="PKCS#1">jFnAjZNTr2bI1RAFZaWI0G8fLiWdr2IB6IMCawEoEoewwRLRJWAur25qYBHByjOvclI/+y6G4bJUQttbK0SjgrwWbItn5Uj4io8RGusq8488kmmln+RUkxaBx9DLjNIxzNiCsuFYIJ0CIBg/U0awE3Uv4/3UNYqhtP7kfP1NEm2tng/nyjZPFjsQz35ZrHo0onfCcaulN2BMe7qO14+vGxzemOXYyr8cuhvlGyGAzqFWiftPw7V6X8lEVxKoYY0OPp633h3YBSIXY4G6VA5mWNSChptf3xDdLY09UEiUl9jPrEfqkunwWPlXRa+ogdkSYg8CsGqHt/RHW/dBjPnMCw==</svcTypes:EncryptionKey><svcTypes:EncryptionAlgorithm block="16" mode="CBC" padding="PKCS#7" size="256"/><svcTypes:EncryptionInitializationVector bytes="16" encoding="Base64">D2mSHwJ5lD0BWszcS4KM1g==</svcTypes:EncryptionInitializationVector></svcInitRequest:Encryption><svcInitRequest:PackageSignature><svcInitRequest:Package CompressionType="zip" PackageType="single">eSPR_package.zip</svcInitRequest:Package><svcInitRequest:FileHash><svcTypes:HashSHA algorithm="SHA-256" encoding="Base64">l8NVtwfABGc9FT4VRuUP4CMaK5encFq0EHOFr/ehXpc=</svcTypes:HashSHA><svcTypes:HashMD5 algorithm="MD5" encoding="Base64">p+AEH+ZyywyRlJKdgsxZdw==</svcTypes:HashMD5><svcTypes:FileSize>4848</svcTypes:FileSize></svcInitRequest:FileHash><svcInitRequest:FileSignatureList><svcInitRequest:FileSignature><svcInitRequest:FileName>eSPR_package.zip.aes</svcInitRequest:FileName><svcInitRequest:FileHash><svcTypes:HashSHA algorithm="SHA-256" encoding="Base64">/w46mnGaZiy39mx8hvbFI5Sve6lr7tBT3SwHpNBZ3tE=</svcTypes:HashSHA><svcTypes:HashMD5 algorithm="MD5" encoding="Base64">mjB4RXAGmj8GlaDxwZOoMA==</svcTypes:HashMD5><svcTypes:FileSize>4864</svcTypes:FileSize></svcInitRequest:FileHash></svcInitRequest:FileSignature></svcInitRequest:FileSignatureList></svcInitRequest:PackageSignature><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="sigId_3309465799136"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference Id="mainRefId_3309465816157" Type="" URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><ds:XPath>not(ancestor-or-self::ds:Signature)</ds:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>Z6R3MkUqckxXl6TPzRUmh7gBOkefjobyooorH0L5cHs=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#sigPropId_3309465818849"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>pC++ua25r6YjV6g7CJdLjgeKJaYcBJ56fIEPhuLkCMo=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="sigValId_3309465812458">qVQ845BFLzzto6sLWr0IzZmPrcfP85JkdImxpxWaVhTWV9RK+WHb3mEvgEXoQdogPA2CGuGkArF9
+        y2jPZcFYrXhaXUfyolLPp696YQMI55ukPGxq0QSyal4yuksIzY8AiYQ3+Z+NcrTN2G0BN1Qh0HBI
+        r0K4QcXEUyBYt1LZ/jndGshPfzIo7Pc2RMLYK8zG1cfzRPbQX3sb0j9t9ZzludiXOGv38Mc1bqwq
+        6X/8pnJmvucEe/IkEqtbIYV0mI+F1kuOvd80eeC2f6BLP3nQcEditjw9384Jek/78ero7mYLDA7T
+        oLkvWK3DspVL4FBq60vuOlSbKeaMR5d3GJLU6g==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEmDCCAoCgAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwWTELMAkGA1UEBhMCUEwxDDAKBgNVBAgM
+        A01hejEPMA0GA1UEBwwGV2Fyc2F3MQ0wCwYDVQQKDARBS01GMQ0wCwYDVQQLDARBcHBzMQ0wCwYD
+        VQQDDAR0ZW1wMB4XDTE4MDgxODIxNDk1NVoXDTI4MTEyMzIxNDk1NVowSDELMAkGA1UEBhMCUEwx
+        DDAKBgNVBAgMA01hejENMAsGA1UECgwEQUtNRjENMAsGA1UECwwEQXBwczENMAsGA1UEAwwEZVNQ
+        UjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALArGUln28rXgqHnEEqJQd8V2Rcvj6cn
+        W40E/IQx+6HqYcfLS+z9m3ipFiXVGUwKFA2EpgBDkemEeQDPRmsM/PySxKYsAx+Si5IYbROk2Nsg
+        XVFkMg16uV96Gzgoio1aQc42BUnjG/1iaxAnPVR9enjwPW6ZOCt1n33jYPPkHcVNXCe7YxuYWwUJ
+        6ir8vdIeeS6WSz7hJmY10szeJeHW6ekf3yqdTpomCTjJgxBVpBD8IfIDpUozQPSW+bN+lyCcaAtK
+        qWFChDtMD4GKL2PDjJ4728MU8M6AtN9+aAoDwPgvnqjzSSzKGZdO9cp0d3mtNwZIzXkXkvC1i6bI
+        AjF7FesCAwEAAaN7MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0
+        ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFPUS+QshEVlFBsamOP1Vf8GEvf9FMB8GA1UdIwQYMBaA
+        FODHncjttsUwg6kCmIizlVtkr8oeMA0GCSqGSIb3DQEBCwUAA4ICAQAscsoPHLfEBjsXe0mmbBtN
+        i2yi9XjTW3c+Xn/3Lt8T2zIUhwZJ7iQjhzMpQgxl4DCPEJpvnooUUfBMMMqhYLqDEYfMJNrT+iSa
+        +//qpUbrD0kUyyaGSeb9g7aelnfKzYRpBXjzPikqdIpnT8u4+qrsG8fDJzhbiqrvh4YKsYzozlBY
+        inWF6he43k9fDAC3PNcJEu11F1VrjgqF+BnsfOUDV+Qa7OndJQh76Oa8Yj+d5rN2aIIMmTnxQdxf
+        ErSzBGakAoA7Ot4bJexz7lBeg/TPN7IMn9J8A/D35Xzr6eHMw2CfHgcjwqD0vmDn2lCEz92YJZY1
+        e8qhD5TEws8NxT+CXlDUAHSCOlFaXQVMFgnEVpV4iJM+rsIYw8BK9LzDlh5XJN75IqNQMJlvMERg
+        LbRVpiXPdZ7hJ4Lti7MD4OXiQ8tXsbSUOM5OAan4ygxkcbFEmJvVmfwAETl2nRgojOm2ILDW1eBo
+        yXOPw7LXEGuaTwdv0d9+z15U0rS5A6G0L0zFN5QT/BkTcbD+I1EhqIFchBc8EKoXt40mq46Bys67
+        efZ1r45aNGuwSvmwdSBgAuEM3nz6+YJaobvRWBAzIfUU2Al8C7xFflJP6lSu2pCaffhQwsg7kUcn
+        IhepJsQ2xX0rr3IP572ueZ562+ey9Mwa+tHhOVd2PmJn6fF8wzIDpg==</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#sigId_3309465799136"><xades:SignedProperties Id="sigPropId_3309465818849"><xades:SignedSignatureProperties><xades:SigningTime>2018-09-13T00:25:34+02:00</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><ds:DigestValue>DZFtcQDVSsEZXB4ThTWTFXgtPyI=</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>CN=temp, OU=Apps, O=AKMF, L=Warsaw, ST=Maz, C=PL</ds:X509IssuerName><ds:X509SerialNumber>4096</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#mainRefId_3309465816157"><xades:MimeType>text/xml</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="sigId_3315441723546"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference Id="mainRefId_3315441738625" Type="" URI=""><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><ds:XPath>not(ancestor-or-self::ds:Signature)</ds:XPath></ds:Transform><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>Z6R3MkUqckxXl6TPzRUmh7gBOkefjobyooorH0L5cHs=</ds:DigestValue></ds:Reference><ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#sigPropId_3315441740583"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>xE8adyiMLk7MdtSA0vYtGYcJvqgmT3CcZDTQXbS873Y=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue Id="sigValId_3315441735496">NivotNhsFjJvEWgVlWvGjrM9Uqnbu6UPgJ/XrQcS49X3C1yIchotE7+7LcaRlqBt5/fGfMBilD+H
+        Uv/ISWzUbHCDBYAKvpesfkEu5MFxy26bxlv7aVDyYV36JnsKZLDm9rChCm1/8LNRx5oZ+f+NERM+
+        K+3JTXyRUNInbYdSIJnOkq6+yguDIaaJRPHez6fKP7TeuBW/ypDyV2frGGUPJQDR/E1cKJp4YiyC
+        Wcu0FPRZ1FQ+9ou0yt1rDRM6H/MpmPpC3sUiBz/wC56L1HivKm7sqQPK5GxiJfM1SwheWEzb51D8
+        HVtnrJf+IJLM2P8t07i5Vepfs1R264O8Y9SabA==</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEmDCCAoCgAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwWTELMAkGA1UEBhMCUEwxDDAKBgNVBAgM
+        A01hejEPMA0GA1UEBwwGV2Fyc2F3MQ0wCwYDVQQKDARBS01GMQ0wCwYDVQQLDARBcHBzMQ0wCwYD
+        VQQDDAR0ZW1wMB4XDTE4MDgxODIxNDk1NVoXDTI4MTEyMzIxNDk1NVowSDELMAkGA1UEBhMCUEwx
+        DDAKBgNVBAgMA01hejENMAsGA1UECgwEQUtNRjENMAsGA1UECwwEQXBwczENMAsGA1UEAwwEZVNQ
+        UjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALArGUln28rXgqHnEEqJQd8V2Rcvj6cn
+        W40E/IQx+6HqYcfLS+z9m3ipFiXVGUwKFA2EpgBDkemEeQDPRmsM/PySxKYsAx+Si5IYbROk2Nsg
+        XVFkMg16uV96Gzgoio1aQc42BUnjG/1iaxAnPVR9enjwPW6ZOCt1n33jYPPkHcVNXCe7YxuYWwUJ
+        6ir8vdIeeS6WSz7hJmY10szeJeHW6ekf3yqdTpomCTjJgxBVpBD8IfIDpUozQPSW+bN+lyCcaAtK
+        qWFChDtMD4GKL2PDjJ4728MU8M6AtN9+aAoDwPgvnqjzSSzKGZdO9cp0d3mtNwZIzXkXkvC1i6bI
+        AjF7FesCAwEAAaN7MHkwCQYDVR0TBAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0
+        ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFPUS+QshEVlFBsamOP1Vf8GEvf9FMB8GA1UdIwQYMBaA
+        FODHncjttsUwg6kCmIizlVtkr8oeMA0GCSqGSIb3DQEBCwUAA4ICAQAscsoPHLfEBjsXe0mmbBtN
+        i2yi9XjTW3c+Xn/3Lt8T2zIUhwZJ7iQjhzMpQgxl4DCPEJpvnooUUfBMMMqhYLqDEYfMJNrT+iSa
+        +//qpUbrD0kUyyaGSeb9g7aelnfKzYRpBXjzPikqdIpnT8u4+qrsG8fDJzhbiqrvh4YKsYzozlBY
+        inWF6he43k9fDAC3PNcJEu11F1VrjgqF+BnsfOUDV+Qa7OndJQh76Oa8Yj+d5rN2aIIMmTnxQdxf
+        ErSzBGakAoA7Ot4bJexz7lBeg/TPN7IMn9J8A/D35Xzr6eHMw2CfHgcjwqD0vmDn2lCEz92YJZY1
+        e8qhD5TEws8NxT+CXlDUAHSCOlFaXQVMFgnEVpV4iJM+rsIYw8BK9LzDlh5XJN75IqNQMJlvMERg
+        LbRVpiXPdZ7hJ4Lti7MD4OXiQ8tXsbSUOM5OAan4ygxkcbFEmJvVmfwAETl2nRgojOm2ILDW1eBo
+        yXOPw7LXEGuaTwdv0d9+z15U0rS5A6G0L0zFN5QT/BkTcbD+I1EhqIFchBc8EKoXt40mq46Bys67
+        efZ1r45aNGuwSvmwdSBgAuEM3nz6+YJaobvRWBAzIfUU2Al8C7xFflJP6lSu2pCaffhQwsg7kUcn
+        IhepJsQ2xX0rr3IP572ueZ562+ey9Mwa+tHhOVd2PmJn6fF8wzIDpg==</ds:X509Certificate></ds:X509Data></ds:KeyInfo><ds:Object><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#sigId_3315441723546"><xades:SignedProperties Id="sigPropId_3315441740583"><xades:SignedSignatureProperties><xades:SigningTime>2018-09-13T00:25:40+02:00</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest><ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><ds:DigestValue>DZFtcQDVSsEZXB4ThTWTFXgtPyI=</ds:DigestValue></xades:CertDigest><xades:IssuerSerial><ds:X509IssuerName>CN=temp, OU=Apps, O=AKMF, L=Warsaw, ST=Maz, C=PL</ds:X509IssuerName><ds:X509SerialNumber>4096</ds:X509SerialNumber></xades:IssuerSerial></xades:Cert></xades:SigningCertificate></xades:SignedSignatureProperties><xades:SignedDataObjectProperties><xades:DataObjectFormat ObjectReference="#mainRefId_3315441738625"><xades:MimeType>text/xml</xades:MimeType></xades:DataObjectFormat></xades:SignedDataObjectProperties></xades:SignedProperties></xades:QualifyingProperties></ds:Object></ds:Signature></svcInitRequest:InitRequest>
+ 
+    
++ Response 200 (application/json)
+
+        {
+          "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
+          "Timestamp": 1541607785760,
+          "PackageSignature": {
+            "PackageName": "eSPR_package.zip",
+            "FileSignatureList": {
+              "FileSignature": {
+                "FileName": "eSPR_package.zip.aes",
+                "URL": "https://e-sprawozdania-tst.mf.gov.pl:443/dmz/api/espr/upload/6c97beadca3d4d5e9e9123c26eadb66b/40030e62-c5e6-4a08-a979-4b31182f04f6",
+                "Method": "PUT",
+                "HeaderEntry": [
+                  {
+                    "Key": "rn",
+                    "Value": "6c97beadca3d4d5e9e9123c26eadb66b"
+                  },
+                  {
+                    "Key": "fi",
+                    "Value": "40030e62-c5e6-4a08-a979-4b31182f04f6"
+                  }
+                ]
+              }
+            }
+          }
+        }
+
+## Drugi etap [/dmz/api/espr/upload/{REFERENCEID}/{FILEID}]
+Metoda umożliwiająca przekazanie załączników do sprawozdania. Parametry wywołania tej metody należy
+pobrać z odpowiedzi metody init. Maksymalna wielkość przekazanego załącznika z pomocą tej metody to 50MiB.
+Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania kodu 200 (http).
+### UPLOAD [PUT]
+
++ Request (application/json)
+
+        {
+            "question": "Favourite programming language?",
+            "choices": [
+                "Swift",
+                "Python",
+                "Objective-C",
+                "Ruby"
+            ]
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /questions/2
+
+    + Body
+
+            {
+                "question": "Favourite programming language?",
+                "published_at": "2015-08-05T08:40:51.620Z",
+                "choices": [
+                    {
+                        "choice": "Swift",
+                        "votes": 0
+                    }, {
+                        "choice": "Python",
+                        "votes": 0
+                    }, {
+                        "choice": "Objective-C",
+                        "votes": 0
+                    }, {
+                        "choice": "Ruby",
+                        "votes": 0
+                    }
+                ]
+            }
+            
+## Trzeci etap [/dmz/api/espr/finish] 
+### FINISH [POST]
+Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. Wywołanie tej metody jest
+wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazanego sprawozdania.
+
++ Request (application/json)
+
+        {
+            "question": "Favourite programming language?",
+            "choices": [
+                "Swift",
+                "Python",
+                "Objective-C",
+                "Ruby"
+            ]
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /questions/2
+
+    + Body
+
+            {
+                "question": "Favourite programming language?",
+                "published_at": "2015-08-05T08:40:51.620Z",
+                "choices": [
+                    {
+                        "choice": "Swift",
+                        "votes": 0
+                    }, {
+                        "choice": "Python",
+                        "votes": 0
+                    }, {
+                        "choice": "Objective-C",
+                        "votes": 0
+                    }, {
+                        "choice": "Ruby",
+                        "votes": 0
+                    }
+                ]
+            }
+
+## Dowolny momęt [/dmz/api/espr/status/{REFERENCEID}] 
+### STATUS [GET]
+xx
