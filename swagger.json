@@ -83,7 +83,7 @@
                 },
                 "examples" : {
                   "0" : {
-                    "value" : "{\"ReferenceNumber\":\"1e7932f261ed40b79fd0cc694e431554\",\"Timestamp\":1541670153564,\"PackageSignature\":{\"PackageName\":\"eSPR_package.zip\",\"FileSignatureList\":{\"FileSignature\":{\"FileName\":\"eSPR_package.zip.aes\",\"URL\":\"https://e-sprawozdania-tst.mf.gov.pl:443/dmz/api/espr/upload/1e7932f261ed40b79fd0cc694e431554/fbafbc3c-ae8f-43e6-82ca-0e2c5b95751d\",\"Method\":\"PUT\",\"HeaderEntry\":[{\"Key\":\"rn\",\"Value\":\"1e7932f261ed40b79fd0cc694e431554\"},{\"Key\":\"fi\",\"Value\":\"fbafbc3c-ae8f-43e6-82ca-0e2c5b95751d\"}]}}}}"
+                    "value" : "{\"ReferenceNumber\":\"9f43f94ccb0343b8a3f4ae061d53aac1\",\"Timestamp\":1541671422888,\"PackageSignature\":{\"PackageName\":\"eSPR_package.zip\",\"FileSignatureList\":{\"FileSignature\":{\"FileName\":\"eSPR_package.zip.aes\",\"URL\":\"https://e-sprawozdania-tst.mf.gov.pl:443/dmz/api/espr/upload/9f43f94ccb0343b8a3f4ae061d53aac1/5db6f93a-8a90-40f6-985f-81def1a1c645\",\"Method\":\"PUT\",\"HeaderEntry\":[{\"Key\":\"rn\",\"Value\":\"9f43f94ccb0343b8a3f4ae061d53aac1\"},{\"Key\":\"fi\",\"Value\":\"5db6f93a-8a90-40f6-985f-81def1a1c645\"}]}}}}"
                   }
                 }
               }
