@@ -570,7 +570,50 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
                     }
                 ]
             }
+
+### UPLOAD błąd [PUT]
+
++ Request (application/json)
+
+        {
+            "question": "Favourite programming language?",
+            "choices": [
+                "Swift",
+                "Python",
+                "Objective-C",
+                "Ruby"
+            ]
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /questions/2
+
+    + Body
+
+            {
+                "question": "Favourite programming language?",
+                "published_at": "2015-08-05T08:40:51.620Z",
+                "choices": [
+                    {
+                        "choice": "Swift",
+                        "votes": 0
+                    }, {
+                        "choice": "Python",
+                        "votes": 0
+                    }, {
+                        "choice": "Objective-C",
+                        "votes": 0
+                    }, {
+                        "choice": "Ruby",
+                        "votes": 0
+                    }
+                ]
+            }
             
+                       
 ## Trzeci etap FINISH [/finish] 
 ### FINISH [POST]
 Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. Wywołanie tej metody jest
