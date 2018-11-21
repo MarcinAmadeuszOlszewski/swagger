@@ -18,28 +18,28 @@ być wywoływane w określonej kolejności. Zachowanie sekwencji wywołani jest 
 dla prawidłowego obsłużenia proces składani e-Sprawozdań Finansowych.
 W sytuacji gdy rozpoczynamy składanie sprawozdania, należy w pierwszej kolejności przygotować pakiet
 wysyłkowy w skład którego wchodzi:
-<p>• Sprawozdanie w formacie XML zgodnym z opublikowanymi schematami XSD</p>
-<p>• Metrykę dokumentu zgodna ze schematem (sekcja załącznik: fileMetrics.xsd)</p>
-<p>• Paczkę ZIP powyższych plików (w oparciu algorytm deFlate)</p>
-<p>• Klucz symetryczny AES256 zgodny ze specyfikacją:</p>
-<p>&emsp;✓ Długość klucza Key Size 256 bits / 32 bytes</p>
-<p>&emsp;✓ Tryb szyfru Cipher Mode CBC (Chain Block Chaining)</p>
-<p>&emsp;✓ Dopełnienie Padding PKCS#7</p>
-<p>&emsp;✓ Rozmiar bloku Block Size 16 bytes</p>
-<p>&emsp;✓ Wektor inicjujący Initialization Vector 16 bytes</p>
-<p>• Zaszyfrowanie przygotwowanego ZIP-a powyższym kluczem.</p>
-<p>• Zaszyfrowanie klucza algorytmem RSA, zgodnym ze specyfikacją publicznym certyfikatem MF.</p>
-<p>&emsp;✓ Długość klucza Key Size 256 bits / 32 bytes</p>
-<p>&emsp;✓ Tryb szyfru Cipher Mode ECB (Electronic Codebook)</p>
-<p>&emsp;✓ Dopełnienie Padding PKCS#1</p>
-<p>&emsp;✓ Rozmiar bloku Block Size 256 bytes</p>
+* Sprawozdanie w formacie XML zgodnym z opublikowanymi schematami XSD
+* Metrykę dokumentu zgodna ze schematem (sekcja załącznik: fileMetrics.xsd)
+* Paczkę ZIP powyższych plików (w oparciu algorytm deFlate)
+* Klucz symetryczny AES256 zgodny ze specyfikacją:
+  - Długość klucza Key Size 256 bits / 32 bytes
+  - Tryb szyfru Cipher Mode CBC (Chain Block Chaining)
+  - Dopełnienie Padding PKCS#7
+  - Rozmiar bloku Block Size 16 bytes
+  - Wektor inicjujący Initialization Vector 16 bytes
+* Zaszyfrowanie przygotwowanego ZIP-a powyższym kluczem.
+* Zaszyfrowanie klucza algorytmem RSA, zgodnym ze specyfikacją publicznym certyfikatem MF.
+  - Długość klucza Key Size 256 bits / 32 bytes
+  - Tryb szyfru Cipher Mode ECB (Electronic Codebook)
+  - Dopełnienie Padding PKCS#1
+  - Rozmiar bloku Block Size 256 bytes
 <p>Przygotowanie dokumentu XML zgodnego ze schematem (sekcja załącznik: initRequest.xsd)</p>
 <p>Podpisanie powyższego dokumentu XML Profilem Zaufanym lub podpisem kwalifikowanym polskim albo
 europejskim zgodnie z algorytmem XAdES Basic Electronic Signature w postaci pliku XML zgodnego ze
-schematem http://www.w3.org/2000/09/xmldsig, w skrócie XAdES-BES w wersji Enveloped (podpis jako
+schematem <a href="http://www.w3.org/2000/09/xmldsig">http://www.w3.org/2000/09/xmldsig</a>, w skrócie XAdES-BES w wersji Enveloped (podpis jako
 dodatkowy element ds:Signature w oryginalnym XML).</p>
 <p>Przy podpisywaniu można dokonać transformacji obiektu podpisywanego zgodnie z kodowaniem
-http://www.w3.org/2000/09/xmldsig#base64. Funkcją skrótu wykorzystywaną w podpisie powinna być RSASHA256 lub RSA-SHA1.</p>
+<a href="http://www.w3.org/2000/09/xmldsig#base64">http://www.w3.org/2000/09/xmldsig#base64</a>. Funkcją skrótu wykorzystywaną w podpisie powinna być RSASHA256 lub RSA-SHA1.</p>
 <p>Następnie należy wywołać metodę init wykorzystując wcześniej przygotowany pakiet wysyłkowy. Aby przekazać
 załączniki należy wywołać metodę upload. Potwierdzenie zakończenia przekazywania należy wykonać przez
 wywołanie metody finish.</p>
@@ -47,6 +47,31 @@ wywołanie metody finish.</p>
 dla złożonego sprawozdania i opcjonalnie pobranie UPO.</p>
 <p>Odpowiedź na każde żądanie wysłane do API jest w formacie JSON.</p>
 
+#Autoryzacja
+Wywoływanie metod nie wymaga przekazania żadnych danych autoryzacyjnych. Sam proces autoryzacji
+odbywa się przez sprawdzenie podpisów elektronicznych które są dołączone do przekazanych danych w plikach
+xml. Podpisy muszą być przygotowane zgodnie ze standardem XAdES-BES.
+
+#Obsługa błędów
+W sytuacji gdyby wywołanie metody zakończyło się błędem, zostanie przekazana odpowiedz w formacie
+json, np.:
+```
+{  
+   "ServiceCode":"fd671f76-87e1-4ddf-b4ab-f50840ef1390",
+   "ServiceName":"status",
+   "Timestamp":1538393755167,
+   "ReferenceNumber":"223212212344124124",
+   "Exceptions":{  
+      "Exception":[  
+         {  
+            "ExceptionCode":605,
+            "ExceptionDescription":"PARSE PROBLEM"
+         }
+      ]
+   }
+};
+```
+# Group Zasoby
 ## Pierwszy etap INIT [/init]
 Metoda rozpoczynająca przekazywanie sprawozdania. Wywołanie tej metody jest wymagane. W metodzie
 tej należy przekazać podpisany plik xml zawierający wszystkie wymagane dane sprawozdania oraz listę referencji
@@ -531,7 +556,7 @@ pobrać z odpowiedzi metody init. Maksymalna wielkość przekazanego załącznik
 Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania kodu 200 (http).
 ### UPLOAD [PUT]
 
-+ Request (application/json)
++ Request (application/xml)
 
         {
             "question": "Favourite programming language?",
@@ -542,12 +567,12 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
                 "Ruby"
             ]
         }
+        
++ Parameters
+    + REFERENCEID - nr referencyjny
+    
++ Response 200 (application/json)
 
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
 
     + Body
 
@@ -573,7 +598,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
 
 ### UPLOAD błąd [PUT]
 
-+ Request (application/json)
++ Request (application/xml)
 
         {
             "question": "Favourite programming language?",
@@ -584,6 +609,9 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
                 "Ruby"
             ]
         }
+        
++ Parameters
+    + REFERENCEID - nr referencyjny
 
 + Response 201 (application/json)
 
@@ -615,65 +643,735 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
             
                        
 ## Trzeci etap FINISH [/finish] 
-### FINISH [POST]
 Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. Wywołanie tej metody jest
 wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazanego sprawozdania.
 
-+ Request (application/json)
+### FINISH [POST]
 
++ Request (application/xml)
+
+        <?xml version="1.0"?>
+        <svcFinishRequest:FinishRequest xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcFinishRequest="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
+          <svcFinishRequest:ReferenceNumber>71f55e44c1204d5e91f41d8d79c28939</svcFinishRequest:ReferenceNumber>
+          <svcFinishRequest:PackageSignature>
+            <svcFinishRequest:PackageName>eSPR_package.zip</svcFinishRequest:PackageName>
+            <svcFinishRequest:FileSignatureList>
+              <svcFinishRequest:FileSignature>
+                <svcFinishRequest:FileName>eSPR_package.zip.aes</svcFinishRequest:FileName>
+              </svcFinishRequest:FileSignature>
+            </svcFinishRequest:FileSignatureList>
+          </svcFinishRequest:PackageSignature>
+        </svcFinishRequest:FinishRequest>
+
++ Response 200 (application/json)
+        
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "ReferenceNumber": "71f55e44c1204d5e91f41d8d79c28939",
+            "Timestamp": 1542799596784
         }
 
-+ Response 201 (application/json)
+### FINISH błedny ReferenceNumber [POST]
 
-    + Headers
++ Request (application/xml)
 
-            Location: /questions/2
+        <?xml version="1.0"?>
+        <svcFinishRequest:FinishRequest xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcFinishRequest="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
+          <svcFinishRequest:ReferenceNumber>0a839501da4b4f009eb818908344659b</svcFinishRequest:ReferenceNumber>
+          <svcFinishRequest:PackageSignature>
+            <svcFinishRequest:PackageName>eSPR_package.zip</svcFinishRequest:PackageName>
+            <svcFinishRequest:FileSignatureList>
+              <svcFinishRequest:FileSignature>
+                <svcFinishRequest:FileName>eSPR_package.zip.aes</svcFinishRequest:FileName>
+              </svcFinishRequest:FileSignature>
+            </svcFinishRequest:FileSignatureList>
+          </svcFinishRequest:PackageSignature>
+        </svcFinishRequest:FinishRequest>
 
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
++ Response 500 (application/json)
+        
+        {
+            "ServiceCode": "a911a507-ac12-46c5-be40-e950c52e0036",
+            "ServiceName": "finish",
+            "Timestamp": 1542799714940,
+            "ReferenceNumber": "0a839501da4b4f009eb818908344659b",
+            "Exceptions": {
+                "Exception": [
                     {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
+                        "ExceptionCode": 601,
+                        "ExceptionDescription": "BUSINESS SVC EXCEPTION No match found!"
                     }
                 ]
             }
+        }
+
+
+### FINISH błedna struktura xml [POST]
+
++ Request (application/xml)
+
+        <?xml version="1.0"?>
+        <svcFinishRequest:FinishRequest xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcFinishRequest="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
+          <svcFinishRequest:ReferenceNumber>d7b6b7cb27ca4bff8aa801d1b7786707</svcFinishRequest:ReferenceNumber>
+        </svcFinishRequest:FinishRequest>
+
++ Response 500 (application/json)
+        
+        {
+            "ServiceCode": "622f66f8-34a2-419e-ba69-8741cecc04eb",
+            "ServiceName": "finish",
+            "Timestamp": 1542799857463,
+            "ReferenceNumber": "d7b6b7cb27ca4bff8aa801d1b7786707",
+            "Exceptions": {
+                "Exception": [
+                    {
+                        "ExceptionCode": 605,
+                        "ExceptionDescription": "PARSE PROBLEM"
+                    }
+                ]
+            }
+        }
+
 
 ## Dowolny moment STATUS [/status/{REFERENCEID}] 
-### STATUS [GET]
 Metoda służąca do pobierania informacji o statusie złożonego sprawozdania. Wywołanie tej metody jest
 opcjonalne. Metoda ta zwraca także UPO w sytuacji gdy proces składania i weryfikacji danych (w tym podpisów
 pod plikami XML) się powiódł.
 
-+ Response 201 (application/json)
+### STATUS sesja rozpoczęta [GET] 
++ Parameters
+    + REFERENCEID - nr referencyjny
 
-        {  
-           "Details":"Przetwarzanie zakończone. Wygenerowane UPO.",
-           "UPO":{  
-              "encoding":"Base64",
-              "value":"PD94...=="
-           },
-           "ReferenceNumber":"0a839501da4b4f009eb818908344659b",
-           "Timestamp":1538393565776,
-           "Code":200
++ Response 200 (application/json)
+
+        {
+            "ReferenceNumber": "71f55e44c1204d5e91f41d8d79c28939",
+            "Timestamp": 1542799212008,
+            "Code": 120,
+            "Details": "Sesja została rozpoczęta",
+            "UPO": null
         }
+        
+### STATUS sesja zakończona błędem weryfikacji [GET] 
++ Parameters
+    + REFERENCEID - nr referencyjny
+
++ Response 200 (application/json)
+
+        {
+            "ReferenceNumber": "71f55e44c1204d5e91f41d8d79c28939",
+            "Timestamp": 1542800047887,
+            "Code": 410,
+            "Details": "Weryfikacja podpisów - błąd",
+            "UPO": null
+        }
+
+### STATUS wszystko ok [GET]
+
++ Parameters
+    + REFERENCEID - nr referencyjny
+
++ Response 200 (application/json)
+
+        {
+            "Details": "Przetwarzanie zakończone. Wygenerowane UPO.",
+            "UPO": {
+                "encoding": "Base64",
+                "value": "PD94...=="
+            },
+            "ReferenceNumber": "0a839501da4b4f009eb818908344659b",
+            "Timestamp": 1538393565776,
+            "Code": 200
+        }
+   
+
+
+
+# Group XSD schema
+### FileMetrics.xsd
+```
+        <?xml version="1.0" encoding="UTF-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:meta="http://meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
+          <xs:import namespace="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" schemaLocation="types/metricsTypes.xsd"/>
+          <xs:element name="Metryka">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="NumerIdentyfikacyjnyNIP" type="types:NIPType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="NumerIdentyfikacyjnyREGON" type="types:REGONType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="NazwaPodmiotu" type="types:NazwaPodmiotuBase" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="DataSporzadzenia" type="types:DataCzasType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="DataWyslania" type="types:DataCzasType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="DataOd" type="types:DataType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="DataDo" type="types:DataType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Adres" type="types:AdresPolskiType" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="ListaPlikow" minOccurs="1" maxOccurs="1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="MetrykaPliku" type="MetrykaPlikuBase" minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                  <xs:unique name="ListaPlikowUnique1">
+                    <xs:selector xpath="meta:MetrykaPliku"/>
+                    <xs:field xpath="meta:NazwaPliku"/>
+                  </xs:unique>
+                </xs:element>
+                <xs:element name="ListaOsobPodpisujacaych" minOccurs="0" maxOccurs="1">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="OsobaPodpiujaca" type="OsobaPodpiujacaType" minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:complexType name="MetrykaPlikuBase" abstract="true">
+            <xs:sequence>
+              <xs:element name="NazwaPliku" type="types:NazwaPlikuType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="SkrotPliku" type="types:SkrotPlikuType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="TypDokumentu" type="types:TypDokumentuType" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="MetrykaPlikuSprBase" abstract="true">
+            <xs:complexContent>
+              <xs:restriction base="MetrykaPlikuBase">
+                <xs:sequence>
+                  <xs:element name="NazwaPliku" type="types:NazwaPlikuType" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="SkrotPliku" type="types:SkrotPlikuType" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="TypDokumentu" type="types:TypDokumentuType" fixed="SprawozdanieFinansowe" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+          <xs:complexType name="MetrykaPlikuXMLType">
+            <xs:complexContent>
+              <xs:extension base="MetrykaPlikuSprBase">
+                <xs:sequence>
+                  <xs:element name="SkrotPodpisanegoPliku" type="types:SkrotPlikuType" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="NazwaSchemy" type="types:String128Type" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="PrzestrzenNazw" type="types:String512Type" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="KodSprawozdania" type="types:String64Type" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="KodSystemowy" type="types:String64Type" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="WersjaSchemy" type="types:String64Type" minOccurs="1" maxOccurs="1"/>
+                  <xs:element name="WariantSprawozdania" type="types:NonZeroIntType" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+              </xs:extension>
+            </xs:complexContent>
+          </xs:complexType>
+          <xs:complexType name="MetrykaPlikuInnyType">
+            <xs:complexContent>
+              <xs:extension base="MetrykaPlikuBase">
+                <xs:sequence>
+                  <xs:element name="TypPliku" type="types:String128Type" minOccurs="1" maxOccurs="1"/>
+                </xs:sequence>
+              </xs:extension>
+            </xs:complexContent>
+          </xs:complexType>
+          <xs:complexType name="OsobaPodpiujacaType">
+            <xs:sequence>
+              <xs:element name="Nazwa" type="types:String128Type" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Podpis" type="types:TakNieType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Odmowa" type="types:TakNieType" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:schema>
+```
+
+### MetricsTypes.xsd
+```
+        <?xml version="1.0" encoding="UTF-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
+          <xs:simpleType name="NIPType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[1-9]((\d[1-9])|([1-9]\d))\d{7}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="REGONType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="(\d{9})|(\d{14})"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="TypDokumentuType">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="SprawozdanieFinansowe"/>
+              <xs:enumeration value="OpiniaBieglegoRewidentaSprawozdaniaFInansowego"/>
+              <xs:enumeration value="UchwalaZatwierdzajacaSprawozdanie"/>
+              <xs:enumeration value="UchwalaOPodzialeZyskuLubStraty"/>
+              <xs:enumeration value="SprawozdanieZDzialalnosci"/>
+              <xs:enumeration value="SprawozdaniePlatnosciNaRzeczAdministracjiPublicznej"/>
+              <xs:enumeration value="SprawozdanieSkonsolidowaneRoczne"/>
+              <xs:enumeration value="OpiniaBieglegoRewidentaSkonsolidowanegoSprawozdania"/>
+              <xs:enumeration value="UchwalaZatwierdzajacaSkonsolidowanegoSprawozdania"/>
+              <xs:enumeration value="SprawozdanieZDzialalnosciJednostkiDominujacej"/>
+              <xs:enumeration value="SprawozdanieSkonsolidowaneZPlatnosciNaRzeczAdministracji"/>
+              <xs:enumeration value="InformacjaOBrakuObowizkuSparzadzeniaSprawozdaniaROcznego"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="NazwaPlikuType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[a-zA-Z0-9_\.\-]{5,100}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="RozmiarPlikuType">
+            <xs:restriction base="xs:integer">
+              <xs:minExclusive value="0"/>
+              <xs:maxInclusive value="104857600"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:complexType name="SkrotPlikuType">
+            <xs:sequence>
+              <xs:element name="HashSHA" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:restriction base="HashSHAType">
+                      <xs:minLength value="44"/>
+                      <xs:maxLength value="44"/>
+                    </xs:restriction>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="HashMD5" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:restriction base="HashMD5Type">
+                      <xs:minLength value="24"/>
+                      <xs:maxLength value="24"/>
+                    </xs:restriction>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="RozmiarPliku" type="RozmiarPlikuType" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="HashSHAType">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+        </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+          <xs:complexType name="HashMD5Type">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+        </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+          <xs:simpleType name="RokMiesiacType">
+            <xs:restriction base="xs:gYearMonth">
+              <xs:minInclusive value="2017-01"/>
+              <xs:maxInclusive value="2999-12"/>
+              <xs:pattern value="((\d{4})-(\d{2}))"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="DataType">
+            <xs:restriction base="xs:date">
+              <xs:minInclusive value="2017-01-01"/>
+              <xs:maxInclusive value="2999-12-31"/>
+              <xs:pattern value="((\d{4})-(\d{2})-(\d{2}))"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="DataCzasType">
+            <xs:restriction base="xs:dateTime">
+              <xs:whiteSpace value="collapse"/>
+              <xs:minInclusive value="2017-01-01T00:00:00Z"/>
+              <xs:maxInclusive value="2999-12-31T23:59:59Z"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:complexType name="Firma">
+            <xs:complexContent>
+              <xs:extension base="NazwaPodmiotuBase">
+                <xs:sequence>
+                  <xs:element name="NazwaFirmy">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:minLength value="2"/>
+                        <xs:maxLength value="200"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:extension>
+            </xs:complexContent>
+          </xs:complexType>
+          <xs:complexType name="Osoba">
+            <xs:complexContent>
+              <xs:extension base="NazwaPodmiotuBase">
+                <xs:sequence>
+                  <xs:element name="Imie">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:minLength value="2"/>
+                        <xs:maxLength value="50"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                  <xs:element name="Nazwisko">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:minLength value="2"/>
+                        <xs:maxLength value="100"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:extension>
+            </xs:complexContent>
+          </xs:complexType>
+          <xs:complexType name="NazwaPodmiotuBase" abstract="true"/>
+          <xs:complexType name="AdresPolskiType">
+            <xs:sequence>
+              <xs:element name="KodKraju" type="KodKrajuType" fixed="PL" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Wojewodztwo" type="String64Type" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Powiat" type="String64Type" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Gmina" type="String64Type" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Ulica" type="String128Type" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NrDomu" type="String16Type" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="NrLokalu" type="String16Type" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="Miejscowosc" type="String64Type" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="KodPocztowy" type="KodPocztowyType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="Poczta" type="String64Type" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:simpleType name="TakNieType">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Tak"/>
+              <xs:enumeration value="Nie"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="KodKrajuType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[A-Z]{2}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="KodPocztowyType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[0-9]{2}-[0-9]{3}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String16Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="16"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String32Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="32"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String64Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="64"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String128Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="128"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String512Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="512"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="NonZeroIntType">
+            <xs:restriction base="xs:int">
+              <xs:minExclusive value="0"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:schema>
+```
+
+### InitRequest.xsd
+```
+        <?xml version="1.0" encoding="utf-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:request.init="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
+          <xs:import namespace="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" schemaLocation="types/gtwTypes.xsd"/>
+          <xs:element name="InitRequest">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="DocumentType" type="types:DocumentTypeType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="Encryption" type="types:EncryptionType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="PackageSignature" type="PackageSignatureType" minOccurs="1" maxOccurs="1"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:complexType name="PackageSignatureType">
+            <xs:sequence>
+              <xs:element name="Package" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="types:PackageNameType">
+                      <xs:attribute name="PackageType" type="types:PackageTypeType" use="required"/>
+                      <xs:attribute name="CompressionType" type="types:CompressionTypeType" use="required"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="FileHash" type="types:FileHashType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="FileSignatureList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="FileSignature" type="FileSignatureType" minOccurs="1" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+                <xs:unique name="FileSignatureUnique">
+                  <xs:selector xpath="request.init:FileSignature"/>
+                  <xs:field xpath="request.init:FileName"/>
+                </xs:unique>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="FileSignatureType">
+            <xs:sequence>
+              <xs:element name="FileName" type="types:FileNameType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="FileHash" type="types:FileHashType" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:schema>
+```
+
+### FinishRequest.xsd
+```
+        <?xml version="1.0" encoding="utf-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:request.finish="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
+          <xs:import namespace="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" schemaLocation="types/gtwTypes.xsd"/>
+          <xs:element name="FinishRequest">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ReferenceNumber" type="types:ReferenceNumberType" minOccurs="1" maxOccurs="1"/>
+                <xs:element name="PackageSignature" type="PackageSignatureType" minOccurs="1" maxOccurs="1"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:complexType name="PackageSignatureType">
+            <xs:sequence>
+              <xs:element name="PackageName" type="types:PackageNameType" minOccurs="1" maxOccurs="1"/>
+              <xs:element name="FileSignatureList" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="FileSignature" type="FileSignatureType" minOccurs="1" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+                <xs:unique name="FileSignatureUnique">
+                  <xs:selector xpath="request.finish:FileSignature"/>
+                  <xs:field xpath="request.finish:FileName"/>
+                </xs:unique>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="FileSignatureType">
+            <xs:sequence>
+              <xs:element name="FileName" type="types:FileNameType" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:schema>
+```
+
+### GtwTypes.xsd
+```
+        <?xml version="1.0" encoding="utf-8"?>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
+          <xs:complexType name="ExceptionType">
+            <xs:sequence>
+              <xs:element name="ExceptionCode" type="IntegerPositiveType"/>
+              <xs:element name="ExceptionDescription" type="String256Type"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="HeaderEntryType">
+            <xs:sequence>
+              <xs:element name="Key" type="String64Type"/>
+              <xs:element name="Value" type="String128Type"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:simpleType name="MethodType">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="POST"/>
+              <xs:enumeration value="PUT"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="IntegerPositiveType">
+            <xs:restriction base="xs:integer">
+              <xs:minExclusive value="0"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String64Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="64"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String128Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="128"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="String256Type">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="256"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="TimestampType">
+            <xs:restriction base="xs:dateTime">
+              <xs:whiteSpace value="collapse"/>
+              <xs:minInclusive value="2018-08-01T00:00:00Z"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="URLType">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="1"/>
+              <xs:maxLength value="512"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="ServiceCodeType">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="64"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="ServiceNameType">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0"/>
+              <xs:maxLength value="64"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="ReferenceNumberType">
+            <xs:restriction base="xs:string">
+              <xs:minLength value="32"/>
+              <xs:maxLength value="32"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:complexType name="UPOType">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+                <xs:attribute name="encoding" use="required" fixed="Base64"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+          <xs:simpleType name="DocumentTypeType">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="eSPR"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="PackageTypeType">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="single"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="CompressionTypeType">
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="zip"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="PackageNameType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[a-zA-Z0-9_\.\-]{5,100}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="FileNameType">
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[a-zA-Z0-9_\.\-]{5,100}"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:simpleType name="FileSizeType">
+            <xs:restriction base="xs:integer">
+              <xs:minExclusive value="0"/>
+              <xs:maxInclusive value="104857600"/>
+            </xs:restriction>
+          </xs:simpleType>
+          <xs:complexType name="FileHashType">
+            <xs:sequence>
+              <xs:element name="HashSHA" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:restriction base="HashSHAType">
+                      <xs:minLength value="44"/>
+                      <xs:maxLength value="44"/>
+                    </xs:restriction>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="HashMD5" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:restriction base="HashMD5Type">
+                      <xs:minLength value="24"/>
+                      <xs:maxLength value="24"/>
+                    </xs:restriction>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="FileSize" type="FileSizeType" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="HashSHAType">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+                <xs:attribute name="algorithm" use="required" fixed="SHA-256"/>
+                <xs:attribute name="encoding" use="required" fixed="Base64"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+          <xs:complexType name="HashMD5Type">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+                <xs:attribute name="algorithm" use="required" fixed="MD5"/>
+                <xs:attribute name="encoding" use="required" fixed="Base64"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+          <xs:complexType name="EncryptionType">
+            <xs:sequence>
+              <xs:element name="EncryptionKey">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:restriction base="EncryptionKeyRSAType">
+                      <xs:minLength value="344"/>
+                      <xs:maxLength value="344"/>
+                    </xs:restriction>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="EncryptionAlgorithm" type="EncryptionAlgorithmType"/>
+              <xs:element name="EncryptionInitializationVector">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:restriction base="EncryptionInitializationVectorType">
+                      <xs:minLength value="24"/>
+                      <xs:maxLength value="24"/>
+                    </xs:restriction>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+          <xs:complexType name="EncryptionKeyRSAType">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+                <xs:attribute name="algorithm" use="required" fixed="RSA"/>
+                <xs:attribute name="mode" use="required" fixed="ECB"/>
+                <xs:attribute name="padding" use="required" fixed="PKCS#1"/>
+                <xs:attribute name="encoding" use="required" fixed="Base64"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+          <xs:complexType name="EncryptionAlgorithmType">
+            <xs:attribute name="size" type="xs:int" use="required" fixed="256"/>
+            <xs:attribute name="block" type="xs:int" use="required" fixed="16"/>
+            <xs:attribute name="mode" use="required" fixed="CBC"/>
+            <xs:attribute name="padding" use="required" fixed="PKCS#7"/>
+          </xs:complexType>
+          <xs:complexType name="EncryptionInitializationVectorType">
+            <xs:simpleContent>
+              <xs:extension base="xs:token">
+                <xs:attribute name="bytes" use="required" fixed="16"/>
+                <xs:attribute name="encoding" use="required" fixed="Base64"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:schema>
+```
