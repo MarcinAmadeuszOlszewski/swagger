@@ -77,8 +77,7 @@ Metoda rozpoczynająca przekazywanie sprawozdania. Wywołanie tej metody jest wy
 tej należy przekazać podpisany plik xml zawierający wszystkie wymagane dane sprawozdania oraz listę referencji
 do wszystkich załączników które będą dołączone do sprawozdania
 
-### INIT [POST] 
-
+### INIT [POST]
 + Request (application/xml)
     
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -295,7 +294,7 @@ do wszystkich załączników które będą dołączone do sprawozdania
           }
         }
 
-### INIT błędna składnia [POST] 
+### INIT błędna składnia [POST]
 + Request (application/xml)
 
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -501,7 +500,7 @@ do wszystkich załączników które będą dołączone do sprawozdania
           }
         }
         
-### INIT brak lub nieprawidłowa sygnatura [POST] 
+### INIT brak lub nieprawidłowa sygnatura [POST]
 + Request (application/xml)       
 
         <ns:InitRequest xmlns:ns="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:ns1="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
@@ -554,8 +553,8 @@ do wszystkich załączników które będą dołączone do sprawozdania
 Metoda umożliwiająca przekazanie załączników do sprawozdania. Parametry wywołania tej metody należy
 pobrać z odpowiedzi metody init. Maksymalna wielkość przekazanego załącznika z pomocą tej metody to 50MiB.
 Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania kodu 200 (http).
-### UPLOAD [PUT]
 
+### UPLOAD [PUT]
 + Request (application/xml)
 
         {
@@ -572,7 +571,6 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
     + REFERENCEID - nr referencyjny
     
 + Response 200 (application/json)
-
 
     + Body
 
@@ -597,7 +595,6 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
             }
 
 ### UPLOAD błąd [PUT]
-
 + Request (application/xml)
 
         {
@@ -613,7 +610,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
 + Parameters
     + REFERENCEID - nr referencyjny
 
-+ Response 201 (application/json)
++ Response 200 (application/json)
 
     + Headers
 
@@ -647,7 +644,6 @@ Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. 
 wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazanego sprawozdania.
 
 ### FINISH [POST]
-
 + Request (application/xml)
 
         <?xml version="1.0"?>
@@ -671,7 +667,6 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
         }
 
 ### FINISH błedny ReferenceNumber [POST]
-
 + Request (application/xml)
 
         <?xml version="1.0"?>
@@ -706,7 +701,6 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
 
 
 ### FINISH błedna struktura xml [POST]
-
 + Request (application/xml)
 
         <?xml version="1.0"?>
@@ -737,7 +731,7 @@ Metoda służąca do pobierania informacji o statusie złożonego sprawozdania. 
 opcjonalne. Metoda ta zwraca także UPO w sytuacji gdy proces składania i weryfikacji danych (w tym podpisów
 pod plikami XML) się powiódł.
 
-### STATUS sesja rozpoczęta [GET] 
+### STATUS sesja rozpoczęta [GET]
 + Parameters
     + REFERENCEID - nr referencyjny
 
@@ -750,8 +744,8 @@ pod plikami XML) się powiódł.
             "Details": "Sesja została rozpoczęta",
             "UPO": null
         }
-        
-### STATUS sesja zakończona błędem weryfikacji [GET] 
+
+### STATUS sesja zakończona błędem weryfikacji [GET]
 + Parameters
     + REFERENCEID - nr referencyjny
 
@@ -766,7 +760,6 @@ pod plikami XML) się powiódł.
         }
 
 ### STATUS wszystko ok [GET]
-
 + Parameters
     + REFERENCEID - nr referencyjny
 
@@ -787,7 +780,7 @@ pod plikami XML) się powiódł.
 
 
 # Group XSD schema
-### FileMetrics.xsd
+## FileMetrics.xsd
 ```
         <?xml version="1.0" encoding="UTF-8"?>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:meta="http://meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
@@ -876,7 +869,7 @@ pod plikami XML) się powiódł.
         </xs:schema>
 ```
 
-### MetricsTypes.xsd
+## MetricsTypes.xsd
 ```
         <?xml version="1.0" encoding="UTF-8"?>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://types.meta.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
@@ -1084,7 +1077,7 @@ pod plikami XML) się powiódł.
         </xs:schema>
 ```
 
-### InitRequest.xsd
+## InitRequest.xsd
 ```
         <?xml version="1.0" encoding="utf-8"?>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:request.init="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://request.init.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
@@ -1133,7 +1126,7 @@ pod plikami XML) się powiódł.
         </xs:schema>
 ```
 
-### FinishRequest.xsd
+## FinishRequest.xsd
 ```
         <?xml version="1.0" encoding="utf-8"?>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:request.finish="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
@@ -1170,7 +1163,7 @@ pod plikami XML) się powiódł.
         </xs:schema>
 ```
 
-### GtwTypes.xsd
+## GtwTypes.xsd
 ```
         <?xml version="1.0" encoding="utf-8"?>
         <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:types="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" targetNamespace="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="PL">
