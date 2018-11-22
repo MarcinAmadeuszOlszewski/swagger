@@ -71,6 +71,7 @@ json, np.:
    }
 };
 ```
+
 # Group Zasoby
 ## Pierwszy etap INIT [/init]
 Metoda rozpoczynająca przekazywanie sprawozdania. Wywołanie tej metody jest wymagane. W metodzie
@@ -555,7 +556,7 @@ pobrać z odpowiedzi metody init. Maksymalna wielkość przekazanego załącznik
 Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania kodu 200 (http).
 
 ### UPLOAD [PUT]
-+ Request (multipart/form-data)
++ Request (multipart/binary data)
 
 + Parameters
     + REFERENCEID - nr referencyjny
@@ -564,7 +565,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
 + Response 200 (application/json)
 
 ### UPLOAD błędny plik [PUT]
-+ Request (multipart/form-data)
++ Request (multipart/binary data)
 
 + Parameters
     + REFERENCEID - nr referencyjny
@@ -588,7 +589,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
         }
 
 ### UPLOAD zbyt duży plik [PUT]
-+ Request (multipart/form-data)
++ Request (multipart/binary data)
 
 + Parameters
     + REFERENCEID - nr referencyjny
@@ -612,7 +613,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
         } 
 
 ### UPLOAD plik już był dostarczony [PUT]
-+ Request (multipart/form-data)
++ Request (multipart/binary data)
 
 + Parameters
     + REFERENCEID - nr referencyjny
@@ -634,8 +635,9 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
                 ]
             }
         }       
-                       
-## Trzeci etap FINISH [/finish] 
+
+
+## Trzeci etap FINISH [/finish]
 Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. Wywołanie tej metody jest
 wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazanego sprawozdania.
 
