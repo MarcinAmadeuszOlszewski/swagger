@@ -47,12 +47,12 @@ wywołanie metody finish.</p>
 dla złożonego sprawozdania i opcjonalnie pobranie UPO.</p>
 <p>Odpowiedź na każde żądanie wysłane do API jest w formacie JSON.</p>
 
-#Autoryzacja
+# Autoryzacja
 Wywoływanie metod nie wymaga przekazania żadnych danych autoryzacyjnych. Sam proces autoryzacji
 odbywa się przez sprawdzenie podpisów elektronicznych które są dołączone do przekazanych danych w plikach
 xml. Podpisy muszą być przygotowane zgodnie ze standardem XAdES-BES.
 
-#Obsługa błędów
+# Obsługa błędów
 W sytuacji gdyby wywołanie metody zakończyło się błędem, zostanie przekazana odpowiedz w formacie
 json, np.:
 ```
@@ -71,6 +71,8 @@ json, np.:
    }
 };
 ```
+
+---
 
 # Group Zasoby
 ## Pierwszy etap INIT [/init]
@@ -789,7 +791,7 @@ pod plikami XML) się powiódł.
         }
    
 
-
+---
 
 # Group XSD schema
 ## FileMetrics.xsd
