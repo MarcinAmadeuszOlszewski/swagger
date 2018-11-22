@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: https://e-sprawozdania-tst.mf.gov.pl/dmz/api/espr
+HOST: https://e-sprawozdania.mf.gov.pl/dmz/api/espr
 
 # E-Sprawozdania
 # Opis
@@ -576,7 +576,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
            "ServiceCode":"40c4a062-4cba-410f-a559-8df053e8e805",
            "ServiceName":"upload",
            "Timestamp":1542808495705,
-           "ReferenceNumber":"ab0efe7496fb43eeb84b2f3ab529b14b",
+           "ReferenceNumber":"6c97beadca3d4d5e9e9123c26eadb66b",
            "Exceptions":{  
               "Exception":[  
                  {  
@@ -600,7 +600,7 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
             "ServiceCode": "b298082a-8efd-4849-b92f-f304fb37b9e6",
             "ServiceName": "upload",
             "Timestamp": 1542809772055,
-            "ReferenceNumber": "08f82534a18a45218624d4cdd57d7021",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Exceptions": {
                 "Exception": [
                     {
@@ -609,9 +609,31 @@ Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania k
                     }
                 ]
             }
-        }            
+        } 
+
+### UPLOAD plik już był dostarczony [PUT]
++ Request (multipart/form-data)
+
++ Parameters
+    + REFERENCEID - nr referencyjny
+    + FILEID - identyfikator pola
+
++ Response 500 (application/json)
         
-        
+        {
+            "ServiceCode": "51785092-5c48-43b7-a6ab-10c4c9497b3a",
+            "ServiceName": "upload",
+            "Timestamp": 1542879353837,
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
+            "Exceptions": {
+                "Exception": [
+                    {
+                        "ExceptionCode": 602,
+                        "ExceptionDescription": "TECHNICAL SVC EXCEPTION Invalid status [-1]!"
+                    }
+                ]
+            }
+        }       
                        
 ## Trzeci etap FINISH [/finish] 
 Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. Wywołanie tej metody jest
@@ -622,7 +644,7 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
 
         <?xml version="1.0"?>
         <svcFinishRequest:FinishRequest xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcFinishRequest="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
-          <svcFinishRequest:ReferenceNumber>71f55e44c1204d5e91f41d8d79c28939</svcFinishRequest:ReferenceNumber>
+          <svcFinishRequest:ReferenceNumber>6c97beadca3d4d5e9e9123c26eadb66b</svcFinishRequest:ReferenceNumber>
           <svcFinishRequest:PackageSignature>
             <svcFinishRequest:PackageName>eSPR_package.zip</svcFinishRequest:PackageName>
             <svcFinishRequest:FileSignatureList>
@@ -645,7 +667,7 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
 
         <?xml version="1.0"?>
         <svcFinishRequest:FinishRequest xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcFinishRequest="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
-          <svcFinishRequest:ReferenceNumber>0a839501da4b4f009eb818908344659b</svcFinishRequest:ReferenceNumber>
+          <svcFinishRequest:ReferenceNumber>6c97beadca3d4d5e9e9123c26eadb66b</svcFinishRequest:ReferenceNumber>
           <svcFinishRequest:PackageSignature>
             <svcFinishRequest:PackageName>eSPR_package.zip</svcFinishRequest:PackageName>
             <svcFinishRequest:FileSignatureList>
@@ -662,7 +684,7 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
             "ServiceCode": "a911a507-ac12-46c5-be40-e950c52e0036",
             "ServiceName": "finish",
             "Timestamp": 1542799714940,
-            "ReferenceNumber": "0a839501da4b4f009eb818908344659b",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Exceptions": {
                 "Exception": [
                     {
@@ -679,7 +701,7 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
 
         <?xml version="1.0"?>
         <svcFinishRequest:FinishRequest xmlns:svcTypes="http://types.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001" xmlns:svcFinishRequest="http://request.finish.svc.gtw.espr.apps.akmf.pl/2018/07/31/0001">
-          <svcFinishRequest:ReferenceNumber>d7b6b7cb27ca4bff8aa801d1b7786707</svcFinishRequest:ReferenceNumber>
+          <svcFinishRequest:ReferenceNumber>6c97beadca3d4d5e9e9123c26eadb66b</svcFinishRequest:ReferenceNumber>
         </svcFinishRequest:FinishRequest>
 
 + Response 500 (application/json)
@@ -688,7 +710,7 @@ wymagane. Po wywołaniu tej metody możliwe będzie sprawdzenie status przekazan
             "ServiceCode": "622f66f8-34a2-419e-ba69-8741cecc04eb",
             "ServiceName": "finish",
             "Timestamp": 1542799857463,
-            "ReferenceNumber": "d7b6b7cb27ca4bff8aa801d1b7786707",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Exceptions": {
                 "Exception": [
                     {
@@ -712,7 +734,7 @@ pod plikami XML) się powiódł.
 + Response 200 (application/json)
 
         {
-            "ReferenceNumber": "71f55e44c1204d5e91f41d8d79c28939",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Timestamp": 1542799212008,
             "Code": 120,
             "Details": "Sesja została rozpoczęta",
@@ -726,7 +748,7 @@ pod plikami XML) się powiódł.
 + Response 200 (application/json)
 
         {
-            "ReferenceNumber": "71f55e44c1204d5e91f41d8d79c28939",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Timestamp": 1542800047887,
             "Code": 410,
             "Details": "Weryfikacja podpisów - błąd",
@@ -740,7 +762,7 @@ pod plikami XML) się powiódł.
 + Response 200 (application/json)
 
         {
-            "ReferenceNumber": "f79b3a0fb99d40c4a4dbce6c781ba7f0",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Timestamp": 1542878589947,
             "Code": 121,
             "Details": "Pliki zostały przesłane",
@@ -759,7 +781,7 @@ pod plikami XML) się powiódł.
                 "encoding": "Base64",
                 "value": "PD94...=="
             },
-            "ReferenceNumber": "0a839501da4b4f009eb818908344659b",
+            "ReferenceNumber": "6c97beadca3d4d5e9e9123c26eadb66b",
             "Timestamp": 1538393565776,
             "Code": 200
         }
