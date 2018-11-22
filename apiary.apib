@@ -555,89 +555,63 @@ pobrać z odpowiedzi metody init. Maksymalna wielkość przekazanego załącznik
 Potwierdzenie prawidłowego przekazania danych odbywa się poprzez przekazania kodu 200 (http).
 
 ### UPLOAD [PUT]
-+ Request (application/xml)
++ Request (multipart/form-data)
 
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-        
 + Parameters
     + REFERENCEID - nr referencyjny
+    + FILEID - identyfikator pola
     
 + Response 200 (application/json)
 
-    + Body
+### UPLOAD błędny plik [PUT]
++ Request (multipart/form-data)
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
-
-### UPLOAD błąd [PUT]
-+ Request (application/xml)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-        
 + Parameters
     + REFERENCEID - nr referencyjny
+    + FILEID - identyfikator pola
 
-+ Response 200 (application/json)
++ Response 500 (application/json)
 
-    + Headers
+        {  
+           "ServiceCode":"40c4a062-4cba-410f-a559-8df053e8e805",
+           "ServiceName":"upload",
+           "Timestamp":1542808495705,
+           "ReferenceNumber":"ab0efe7496fb43eeb84b2f3ab529b14b",
+           "Exceptions":{  
+              "Exception":[  
+                 {  
+                    "ExceptionCode":601,
+                    "ExceptionDescription":"BUSINESS SVC EXCEPTION Invalid file hash."
+                 }
+              ]
+           }
+        }
 
-            Location: /questions/2
+### UPLOAD zbyt duży plik [PUT]
++ Request (multipart/form-data)
 
-    + Body
++ Parameters
+    + REFERENCEID - nr referencyjny
+    + FILEID - identyfikator pola
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
++ Response 500 (application/json)
+
+        {
+            "ServiceCode": "b298082a-8efd-4849-b92f-f304fb37b9e6",
+            "ServiceName": "upload",
+            "Timestamp": 1542809772055,
+            "ReferenceNumber": "08f82534a18a45218624d4cdd57d7021",
+            "Exceptions": {
+                "Exception": [
                     {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
+                        "ExceptionCode": 607,
+                        "ExceptionDescription": "RUNTIME PROBLEM - maxLength exceeded (4864 < 7193)"
                     }
                 ]
             }
-            
+        }            
+        
+        
                        
 ## Trzeci etap FINISH [/finish] 
 Metoda służąca do potwierdzenia zakończenia procesu składania sprawozdań. Wywołanie tej metody jest
@@ -756,6 +730,20 @@ pod plikami XML) się powiódł.
             "Timestamp": 1542800047887,
             "Code": 410,
             "Details": "Weryfikacja podpisów - błąd",
+            "UPO": null
+        }
+
+### STATUS pliki przesłane [GET]
++ Parameters
+    + REFERENCEID - nr referencyjny
+
++ Response 200 (application/json)
+
+        {
+            "ReferenceNumber": "f79b3a0fb99d40c4a4dbce6c781ba7f0",
+            "Timestamp": 1542878589947,
+            "Code": 121,
+            "Details": "Pliki zostały przesłane",
             "UPO": null
         }
 
